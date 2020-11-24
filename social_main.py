@@ -7,13 +7,17 @@ import math
 import json
 import random as rand
 import sys
+import numpy as np
 
+SPRITE_IMAGE_SIZE = 128
+SPRITE_SCALING = 0.25
+SPRITE_SIZE = SPRITE_IMAGE_SIZE * SPRITE_SCALING
 
-SPRITE_SCALING = 0.5
+# SPRITE_SCALING = 0.5
 
 SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 600
-SCREEN_TITLE = "Move Sprite by Angle Example"
+SCREEN_TITLE = "Move Sprite Social"
 
 MOVEMENT_SPEED = 2
 ANGLE_SPEED = 2
@@ -88,7 +92,6 @@ class Actor(arcade.Sprite):
         self.counter += 1
 
 
-
 class SocialGame(arcade.Window):
     """
     Main application class.
@@ -112,25 +115,28 @@ class SocialGame(arcade.Window):
         # Variables that will hold sprite lists
         self.player_list = None
         self.actor_list = None
+        self.wall_list = None
+        self.interest_list = None
 
         # Set up the player info
         self.player_sprite = None
-
         self.player_init = None
 
+        # set up scene info
         self.scene_name = ""
-
         self.scene_hist = {}
 
         # Set the background color
         arcade.set_background_color(arcade.color.BLACK)
 
-    def setup(self, load_file = "", actor_name = ""):
+    def setup(self, load_file="", actor_name=""):
         """ Set up the game and initialize the variables. """
 
         # Sprite lists
         self.player_list = arcade.SpriteList()
         self.actor_list = arcade.SpriteList()
+        self.wall_list = arcade.SpriteList()
+        self.interest_list = arcade.SpriteList()
 
         # Set up the player actor yea it's blue what do you want
         self.player_sprite = Player("./resources/playerShip1_blue.png", SPRITE_SCALING)
@@ -153,13 +159,72 @@ class SocialGame(arcade.Window):
                 self.scene_hist = hist
                 for actor_name in hist:
                     actor_sprite = Actor(":resources:images/space_shooter/playerShip2_orange.png", SPRITE_SCALING,
-                                               hist[actor_name])
+                                         hist[actor_name])
                     actor_sprite.center_x = int(hist[actor_name]["init_pos"][0])
                     actor_sprite.center_y = int(hist[actor_name]["init_pos"][1])
                     self.actor_list.append(actor_sprite)
             except FileNotFoundError:
                 print("no scene found")
                 sys.exit(0)
+
+        self.setupRoom1()
+
+    def setupRoom1(self):
+
+        wall_res = ":resources:images/tiles/dirtCenter.png"
+        # Wall 1
+        for lenghts in np.arange(0, SCREEN_HEIGHT / 3, SPRITE_SIZE):
+            wall_sprite = arcade.Sprite(wall_res, SPRITE_SCALING)
+            wall_sprite.center_x = SCREEN_WIDTH / 3
+            wall_sprite.center_y = lenghts
+            self.wall_list.append(wall_sprite)
+
+        wall_sprite = arcade.Sprite(wall_res, SPRITE_SCALING)
+        wall_sprite.center_x = SCREEN_WIDTH / 3
+        wall_sprite.center_y = SCREEN_HEIGHT / 3
+        self.wall_list.append(wall_sprite)
+
+        # Wall 2
+        for lenghts in np.arange(SCREEN_WIDTH, 2 * SCREEN_WIDTH / 3, -SPRITE_SIZE):
+            wall_sprite = arcade.Sprite(wall_res, SPRITE_SCALING)
+            wall_sprite.center_x = lenghts
+            wall_sprite.center_y = 2 * SCREEN_HEIGHT / 3
+            self.wall_list.append(wall_sprite)
+
+        wall_sprite = arcade.Sprite(wall_res, SPRITE_SCALING)
+        wall_sprite.center_x = 2 * SCREEN_WIDTH / 3
+        wall_sprite.center_y = 2 * SCREEN_HEIGHT / 3
+        self.wall_list.append(wall_sprite)
+
+        # Wall 3
+        for lenghts in np.arange(0, SCREEN_WIDTH / 2, SPRITE_SIZE):
+            wall_sprite = arcade.Sprite(wall_res, SPRITE_SCALING)
+            wall_sprite.center_x = lenghts
+            wall_sprite.center_y = 2 * SCREEN_HEIGHT / 3
+            self.wall_list.append(wall_sprite)
+
+        wall_sprite = arcade.Sprite(wall_res, SPRITE_SCALING)
+        wall_sprite.center_x = SCREEN_WIDTH / 2
+        wall_sprite.center_y = 2 * SCREEN_HEIGHT / 3
+        self.wall_list.append(wall_sprite)
+
+        self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
+                                                         self.wall_list)
+
+        wat_sprite = arcade.Sprite(":resources:images/items/gemBlue.png", SPRITE_SCALING)
+        wat_sprite.center_x = SCREEN_WIDTH / 6
+        wat_sprite.center_y = SCREEN_HEIGHT / 6
+        self.interest_list.append(wat_sprite)
+
+        fir_sprite = arcade.Sprite(":resources:images/items/gemRed.png", SPRITE_SCALING)
+        fir_sprite.center_x = 5 * SCREEN_WIDTH / 6
+        fir_sprite.center_y = SCREEN_HEIGHT / 2
+        self.interest_list.append(fir_sprite)
+
+        tab_sprite = arcade.Sprite(":resources:images/items/gemGreen.png", SPRITE_SCALING)
+        tab_sprite.center_x = SCREEN_WIDTH / 4
+        tab_sprite.center_y = 5 * SCREEN_HEIGHT / 6
+        self.interest_list.append(tab_sprite)
 
     def on_draw(self):
         """
@@ -172,6 +237,9 @@ class SocialGame(arcade.Window):
         # Draw all the sprites.
         self.player_list.draw()
         self.actor_list.draw()
+        self.wall_list.draw()
+        self.interest_list.draw()
+        pass
 
     def on_update(self, delta_time):
         """ Movement and game logic """
@@ -200,7 +268,6 @@ class SocialGame(arcade.Window):
             self.on_exit_save()
             sys.exit(0)
 
-
     def on_exit_save(self):
 
         if len(self.scene_name) > 0:
@@ -214,7 +281,6 @@ class SocialGame(arcade.Window):
         else:
             pass
 
-
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
 
@@ -224,13 +290,25 @@ class SocialGame(arcade.Window):
             self.player_sprite.change_angle = 0
 
 
+def genTask():
+    tasks = ['blue', 'green', 'red', 'gather']
+    res = [rand.choice(tasks)]
+    while True:
+        if rand.random() > 0.5:
+            res.append(rand.choice(tasks))
+        else:
+            break
+    return res
+
 def main():
     """ Main method """
 
-    print("input scene name")
+    print("THIS IS YOUR TASK: ", genTask())
+
+    print("input scene name (use first if you don't know what to do) ")
     scene_name = input()
 
-    print("input actor name")
+    print("input actor name (can over write existing actor name) ")
     action_name = input()
 
     window = SocialGame(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
