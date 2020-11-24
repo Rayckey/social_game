@@ -308,11 +308,13 @@ def main():
     print("input scene name (use first if you don't know what to do) ")
     scene_name = input()
 
-    print("input actor name (can over write existing actor name) ")
+    print("input actor name (can over write existing actor) ")
     action_name = input()
 
     window = SocialGame(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
     window.setup("./saved_scene/" + scene_name + ".json", action_name)
+
+    print("use ARROWS to move and ESC to save!")
     arcade.run()
 
 
