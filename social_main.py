@@ -23,6 +23,20 @@ MOVEMENT_SPEED = 2
 ANGLE_SPEED = 2
 
 
+
+def genTask():
+    tasks = ['blue', 'green', 'red', 'gather']
+    res = [rand.choice(tasks)]
+    while True:
+        if rand.random() > 0.5:
+            temp_task = rand.choice(tasks)
+            while temp_task == res[-1]:
+                temp_task = rand.choice(tasks)
+            res.append(rand.choice(tasks))
+        else:
+            break
+    return res
+
 class Player(arcade.Sprite):
     """ Player class """
 
@@ -272,7 +286,8 @@ class SocialGame(arcade.Window):
 
         if len(self.scene_name) > 0:
             player_dict = {'name': self.player_sprite.actor_name, "d_angle": self.player_sprite.d_angle_hist,
-                           'speed': self.player_sprite.speed_hist, "init_pos": self.player_sprite.player_init}
+                           'speed': self.player_sprite.speed_hist, "init_pos": self.player_sprite.player_init,
+                           'tasks': self.tasks}
 
             self.scene_hist[self.player_sprite.actor_name] = player_dict
 
@@ -290,20 +305,17 @@ class SocialGame(arcade.Window):
             self.player_sprite.change_angle = 0
 
 
-def genTask():
-    tasks = ['blue', 'green', 'red', 'gather']
-    res = [rand.choice(tasks)]
-    while True:
-        if rand.random() > 0.5:
-            res.append(rand.choice(tasks))
-        else:
-            break
-    return res
+
 
 def main():
     """ Main method """
 
-    print("THIS IS YOUR TASK: ", genTask())
+    tasks = genTask()
+
+    print("THIS IS YOUR TASK: ", tasks)
+    print("For each task, stay by your goal for 3 seconds before proceeding to next task")
+
+    print("Try to avoid other actors and obstacles")
 
     print("input scene name (use first if you don't know what to do) ")
     scene_name = input()
@@ -312,6 +324,7 @@ def main():
     action_name = input()
 
     window = SocialGame(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+    window.tasks = tasks
     window.setup("./saved_scene/" + scene_name + ".json", action_name)
 
     print("use ARROWS to move and ESC to save!")
