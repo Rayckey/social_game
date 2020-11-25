@@ -8,6 +8,7 @@ import json
 import random as rand
 import sys
 import numpy as np
+import argparse
 
 SPRITE_IMAGE_SIZE = 128
 SPRITE_SCALING = 0.25
@@ -22,6 +23,16 @@ SCREEN_TITLE = "Move Sprite Social"
 MOVEMENT_SPEED = 2
 ANGLE_SPEED = 2
 
+# ANSI COLORS
+BLACK   = '\u001b[30m'
+RED     = '\u001b[31m'
+GREEN   = '\u001b[32m'
+YELLOW  = '\u001b[33m'
+BLUE    = '\u001b[34m'
+MAGENTA = '\u001b[35m'
+CYAN    = '\u001b[36m'
+WHITE   = '\u001b[37m'
+RESET   = '\u001b[0m'
 
 class Player(arcade.Sprite):
     """ Player class """
@@ -300,23 +311,45 @@ def genTask():
             break
     return res
 
-def main():
+def printTask(task):
+    colors = {
+        'red'    : RED,
+        'green'  : GREEN,
+        'blue'   : CYAN,
+        'gather' : WHITE,
+    }
+
+    msg = "THIS IS YOUR TASK: "
+    colored = []
+    for t in task:
+        color = colors.get(t, RESET)
+        colored.append(color + t.upper() + RESET)
+    msg += '[' + ', '.join(colored) + ']'
+    print(msg)
+
+def main(scene, actor):
     """ Main method """
 
-    print("THIS IS YOUR TASK: ", genTask())
+    task = genTask()
+    printTask(task)
 
-    print("input scene name (use first if you don't know what to do) ")
-    scene_name = input()
+    if scene is None:
+        print("input scene name (use first if you don't know what to do) ")
+        scene = input()
 
-    print("input actor name (can over write existing actor) ")
-    action_name = input()
+    if actor is None:
+        print("input actor name (can over write existing actor) ")
+        actor = input()
 
     window = SocialGame(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-    window.setup("./saved_scene/" + scene_name + ".json", action_name)
+    window.setup("./saved_scene/" + scene + ".json", actor)
 
     print("use ARROWS to move and ESC to save!")
     arcade.run()
 
-
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description='Play spaceship game.')
+    parser.add_argument('--scene', help='scene name')
+    parser.add_argument('--actor', help='actor name')
+    args = parser.parse_args()
+    main(args.scene, args.actor)
