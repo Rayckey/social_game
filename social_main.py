@@ -36,7 +36,7 @@ RESET   = '\u001b[0m'
 
 
 def genTask():
-    tasks = ['blue', 'green', 'red', 'gather']
+    tasks = ['blue', 'green', 'red', 'socialize', 'isolate']
     res = [rand.choice(tasks)]
     while True:
         if rand.random() > 0.5:
@@ -323,7 +323,8 @@ def printTask(task):
         'red'    : RED,
         'green'  : GREEN,
         'blue'   : CYAN,
-        'gather' : WHITE,
+        'socialize' : WHITE,
+        'isolate': MAGENTA,
     }
 
     msg = "THIS IS YOUR TASK: "
@@ -337,17 +338,14 @@ def printTask(task):
 def main(scene, actor):
     """ Main method """
 
-<<<<<<< HEAD
-    task = genTask()
-    printTask(task)
-=======
+
     tasks = genTask()
+    printTask(tasks)
 
-    print("THIS IS YOUR TASK: ", tasks)
+    # print("THIS IS YOUR TASK: ", tasks)
     print("For each task, stay by your goal for 3 seconds before proceeding to next task")
-
     print("Try to avoid other actors and obstacles")
->>>>>>> refs/remotes/origin/master
+
 
     if scene is None:
         print("input scene name (use first if you don't know what to do) ")
@@ -358,12 +356,10 @@ def main(scene, actor):
         actor = input()
 
     window = SocialGame(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-<<<<<<< HEAD
-    window.setup("./saved_scene/" + scene + ".json", actor)
-=======
+
     window.tasks = tasks
-    window.setup("./saved_scene/" + scene_name + ".json", action_name)
->>>>>>> refs/remotes/origin/master
+    window.setup("./saved_scene/" + scene + ".json", actor)
+
 
     print("use ARROWS to move and ESC to save!")
     arcade.run()
