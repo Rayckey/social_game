@@ -34,6 +34,20 @@ CYAN    = '\u001b[36m'
 WHITE   = '\u001b[37m'
 RESET   = '\u001b[0m'
 
+
+def genTask():
+    tasks = ['blue', 'green', 'red', 'gather']
+    res = [rand.choice(tasks)]
+    while True:
+        if rand.random() > 0.5:
+            temp_task = rand.choice(tasks)
+            while temp_task == res[-1]:
+                temp_task = rand.choice(tasks)
+            res.append(rand.choice(tasks))
+        else:
+            break
+    return res
+
 class Player(arcade.Sprite):
     """ Player class """
 
@@ -283,7 +297,8 @@ class SocialGame(arcade.Window):
 
         if len(self.scene_name) > 0:
             player_dict = {'name': self.player_sprite.actor_name, "d_angle": self.player_sprite.d_angle_hist,
-                           'speed': self.player_sprite.speed_hist, "init_pos": self.player_sprite.player_init}
+                           'speed': self.player_sprite.speed_hist, "init_pos": self.player_sprite.player_init,
+                           'tasks': self.tasks}
 
             self.scene_hist[self.player_sprite.actor_name] = player_dict
 
@@ -301,15 +316,7 @@ class SocialGame(arcade.Window):
             self.player_sprite.change_angle = 0
 
 
-def genTask():
-    tasks = ['blue', 'green', 'red', 'gather']
-    res = [rand.choice(tasks)]
-    while True:
-        if rand.random() > 0.5:
-            res.append(rand.choice(tasks))
-        else:
-            break
-    return res
+
 
 def printTask(task):
     colors = {
@@ -330,8 +337,17 @@ def printTask(task):
 def main(scene, actor):
     """ Main method """
 
+<<<<<<< HEAD
     task = genTask()
     printTask(task)
+=======
+    tasks = genTask()
+
+    print("THIS IS YOUR TASK: ", tasks)
+    print("For each task, stay by your goal for 3 seconds before proceeding to next task")
+
+    print("Try to avoid other actors and obstacles")
+>>>>>>> refs/remotes/origin/master
 
     if scene is None:
         print("input scene name (use first if you don't know what to do) ")
@@ -342,7 +358,12 @@ def main(scene, actor):
         actor = input()
 
     window = SocialGame(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+<<<<<<< HEAD
     window.setup("./saved_scene/" + scene + ".json", actor)
+=======
+    window.tasks = tasks
+    window.setup("./saved_scene/" + scene_name + ".json", action_name)
+>>>>>>> refs/remotes/origin/master
 
     print("use ARROWS to move and ESC to save!")
     arcade.run()
