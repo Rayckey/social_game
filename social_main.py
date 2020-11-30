@@ -35,17 +35,23 @@ WHITE   = '\u001b[37m'
 RESET   = '\u001b[0m'
 
 
-def genTask():
+def genTask( exist , repeat):
     tasks = ['blue', 'green', 'red', 'socialize', 'isolate']
-    res = [rand.choice(tasks)]
-    while True:
-        if rand.random() > 0.5:
-            temp_task = rand.choice(tasks)
-            while temp_task == res[-1]:
+    tasks_none_exist = tasks[0:3]
+    if exist:
+        res = [rand.choice(tasks)]
+    else:
+        res = [rand.choice(tasks_none_exist)]
+    if repeat:
+        while True:
+            if rand.random() > 0.5:
                 temp_task = rand.choice(tasks)
-            res.append(rand.choice(tasks))
-        else:
-            break
+                while temp_task == res[-1]:
+                    temp_task = rand.choice(tasks)
+                res.append(rand.choice(tasks))
+            else:
+                break
+
     return res
 
 class Player(arcade.Sprite):
@@ -146,6 +152,7 @@ class SocialGame(arcade.Window):
         # Set up the player info
         self.player_sprite = None
         self.player_init = None
+        self.player_order = None
 
         # set up scene info
         self.scene_name = ""
@@ -191,6 +198,8 @@ class SocialGame(arcade.Window):
             except FileNotFoundError:
                 print("no scene found")
                 sys.exit(0)
+
+        self.player_order = len(self.actor_list)
 
         self.setupRoom1()
 
@@ -298,7 +307,7 @@ class SocialGame(arcade.Window):
         if len(self.scene_name) > 0:
             player_dict = {'name': self.player_sprite.actor_name, "d_angle": self.player_sprite.d_angle_hist,
                            'speed': self.player_sprite.speed_hist, "init_pos": self.player_sprite.player_init,
-                           'tasks': self.tasks}
+                           'tasks': self.tasks, 'order': self.player_order}
 
             self.scene_hist[self.player_sprite.actor_name] = player_dict
 
@@ -339,13 +348,6 @@ def main(scene, actor):
     """ Main method """
 
 
-    tasks = genTask()
-    printTask(tasks)
-
-    # print("THIS IS YOUR TASK: ", tasks)
-    print("For each task, stay by your goal for 3 seconds before proceeding to next task")
-    print("Try to avoid other actors and obstacles")
-
 
     if scene is None:
         print("input scene name (use first if you don't know what to do) ")
@@ -355,10 +357,42 @@ def main(scene, actor):
         print("input actor name (can over write existing actor) ")
         actor = input()
 
+
+    load_file = "./saved_scene_tasks_order/" + scene + ".json"
+
+    # tune some things here I guess
+    exist = True
+    repeat = False
+
+    if len(load_file) == 0:
+        pass
+    else:
+        try:
+            f = open(load_file)
+            hist = json.load(f)
+            res = not hist
+            if res:
+                exist = False
+        except FileNotFoundError:
+            print("no scene found")
+            sys.exit(0)
+
+    tasks = genTask(exist,repeat)
+    printTask(tasks)
+
+    # print("For each task, stay by your goal for 3 seconds before proceeding to next task")
+    print("Try to avoid other actors and obstacles")
+
+
+
+    print("Press enter to start now")
+    input()
+
+
     window = SocialGame(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
 
     window.tasks = tasks
-    window.setup("./saved_scene/" + scene + ".json", actor)
+    window.setup("./saved_scene_tasks_order/" + scene + ".json", actor)
 
 
     print("use ARROWS to move and ESC to save!")
